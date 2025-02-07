@@ -1,5 +1,6 @@
 package br.com.bielb1b2.gestao_vagas.modules.company.useCases;
 
+import br.com.bielb1b2.gestao_vagas.exceptions.UserFoundException;
 import br.com.bielb1b2.gestao_vagas.modules.company.entities.CompanyEntity;
 import br.com.bielb1b2.gestao_vagas.modules.company.repositories.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,12 @@ public class CreateCompanyUseCase {
     @Autowired
     private CompanyRepository companyRepository;
 
-    private void execute(CompanyEntity companyEntity) {
+    public CompanyEntity execute(CompanyEntity companyEntity) {
+        this.companyRepository.findByUsernameOrEmail(companyEntity.getUsername(), companyEntity.getEmail())
+                .ifPresent((user) -> {
+                    throw new UserFoundException();
+                });
 
+        return this.companyRepository.save(companyEntity);
     }
 }
